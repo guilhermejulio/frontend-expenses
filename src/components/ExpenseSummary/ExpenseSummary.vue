@@ -5,7 +5,7 @@
         <p>Despesas cadastradas</p>
         <q-icon name="check_circle" size="1.5em" />
       </header>
-      <strong>{{ acceptedLeads }}</strong>
+      <strong>{{ expensesCount }}</strong>
     </div>
 
     <div class="summary-card total-expenses">
@@ -13,15 +13,16 @@
         <p>Valor total de despesas</p>
         <q-icon name="arrow_upward" size="1.5em" />
       </header>
-      <strong>R${{ inviteLeads }}</strong>
+      <strong>R${{ total }}</strong>
     </div>
   </SummaryContainer>
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { defineComponent } from "vue";
 import SummaryContainer from "./SummaryContainer.vue";
+import useApi from "src/composables/UseApi";
 
 export default defineComponent({
   name: "ExpenseSummary",
@@ -29,14 +30,27 @@ export default defineComponent({
     SummaryContainer,
   },
   setup() {
-    const inviteLeads = 10;
-    const rejectLeads = 5;
-    const acceptedLeads = 15;
+    const total = ref(0);
+    const expensesCount = ref(0);
+    const { get } = useApi();
+
+    const handleGetStatistics = async () => {
+      try {
+        const { statistics } = await get("/expenses/statistics");
+        total.value = statistics?.total;
+        expensesCount.value = statistics?.expensesCount;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    onMounted(() => {
+      handleGetStatistics();
+    });
 
     return {
-      inviteLeads,
-      rejectLeads,
-      acceptedLeads,
+      total,
+      expensesCount,
     };
   },
 });

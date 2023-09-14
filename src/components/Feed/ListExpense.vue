@@ -1,42 +1,115 @@
 <template>
-  <q-list class="expenses-list">
-    <q-item v-for="(item, index) in cardItems" :key="index">
-      <q-item-section>
-        <card
-          :description="item.description"
-          :date="item.date"
-          :value="item.value"
-        ></card>
-      </q-item-section>
-    </q-item>
-  </q-list>
+  <q-page padding>
+    <div class="row">
+      <q-table
+        title="Despesas"
+        :rows="expensesList"
+        :columns="columns"
+        row-key="id"
+        class="col-12"
+      >
+        <template v-slot:top>
+          <span class="text-h6">Suas despesas</span>
+          <q-space />
+          <q-btn
+            color="primary"
+            label="Nova Despesa"
+            icon="add"
+            @click="handleNewExpense"
+          />
+        </template>
+        <template v-slot:body-cell-actions="props">
+          <q-td :props="props" class="q-gutter-x-sm">
+            <q-btn
+              color="primary"
+              flat
+              dense
+              round
+              icon="edit"
+              @click="handleEdit(props.row)"
+            >
+              <q-tooltip> Editar </q-tooltip>
+            </q-btn>
+            <q-btn
+              color="negative"
+              flat
+              dense
+              round
+              icon="delete"
+              @click="handleEdit(props.row)"
+            >
+              <q-tooltip> Deletar </q-tooltip>
+            </q-btn>
+          </q-td>
+        </template>
+      </q-table>
+    </div>
+  </q-page>
 </template>
 
 <script>
-import { defineComponent } from "vue";
-import Card from "./ExpenseCard.vue";
-
-const cardItems = [
+const columns = [
   {
-    description: "Descrição do Card 1",
-    date: "12 de setembro, 2023",
-    value: "R$ 100,00",
+    name: "description",
+    label: "Descrição",
+    align: "left",
+    field: "description",
   },
   {
-    description: "Descrição do Card 2",
-    date: "13 de setembro, 2023",
-    value: "R$ 150,00",
+    name: "date",
+    label: "Data",
+    align: "left",
+    field: "date",
+  },
+  {
+    name: "amount",
+    label: "Valor (R$)",
+    align: "left",
+    field: "amount",
+    sortable: true,
+  },
+  {
+    name: "created_at",
+    label: "Criado em",
+    align: "left",
+    field: "created_at",
+    sortable: true,
+  },
+  {
+    name: "actions",
+    label: "",
+    align: "right",
+    field: "actions",
   },
 ];
 
+import { defineComponent, onMounted, ref } from "vue";
+import useApi from "src/composables/UseApi";
+import useNotify from "src/composables/UseNotify";
+
 export default defineComponent({
   name: "ListExpense",
-  components: {
-    Card,
-  },
   setup() {
+    const expensesList = ref([]);
+    const { list } = useApi();
+    const { notifyError } = useNotify();
+
+    const handleListExpenses = async () => {
+      try {
+        const { expenses } = await list("/expenses");
+        expensesList.value = expenses?.data;
+      } catch (error) {
+        notifyError(error?.response?.data?.message);
+      }
+    };
+
+    onMounted(() => {
+      handleListExpenses();
+    });
+
     return {
-      cardItems,
+      columns,
+      expensesList,
     };
   },
 });
