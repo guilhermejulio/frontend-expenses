@@ -7,6 +7,7 @@
         :columns="columns"
         row-key="id"
         class="col-12"
+        :loading="loading"
       >
         <template v-slot:top>
           <span class="text-h6">Suas despesas</span>
@@ -15,7 +16,7 @@
             color="primary"
             label="Nova Despesa"
             icon="add"
-            @click="handleNewExpense"
+            :to="{ name: 'form-expense' }"
           />
         </template>
         <template v-slot:body-cell-actions="props">
@@ -84,23 +85,33 @@ const columns = [
 ];
 
 import { defineComponent, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import useApi from "src/composables/UseApi";
 import useNotify from "src/composables/UseNotify";
 
 export default defineComponent({
   name: "ListExpense",
   setup() {
+    const router = useRouter();
     const expensesList = ref([]);
+    const loading = ref(true);
     const { list } = useApi();
     const { notifyError } = useNotify();
 
     const handleListExpenses = async () => {
       try {
+        loading.value = true;
         const { expenses } = await list("/expenses");
         expensesList.value = expenses?.data;
+        loading.value = false;
       } catch (error) {
         notifyError(error?.response?.data?.message);
+        loading.value = false;
       }
+    };
+
+    const handleEdit = (expense) => {
+      router.push({ name: "form-expense", params: { id: expense.id } });
     };
 
     onMounted(() => {
@@ -110,6 +121,8 @@ export default defineComponent({
     return {
       columns,
       expensesList,
+      loading,
+      handleEdit,
     };
   },
 });

@@ -28,6 +28,11 @@ const routes = [
         path: "home",
         name: "home",
         component: () => import("pages/IndexPage.vue")
+      },
+      {
+        path: "form-expense/:id?",
+        name: "form-expense",
+        component: () => import("src/pages/FormExpense.vue")
       }
     ],
     meta: {

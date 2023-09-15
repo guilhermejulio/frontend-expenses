@@ -28,7 +28,7 @@ export default function useApi() {
     }
   };
 
-  const create = async (resource, data) => {
+  const post = async (resource, data) => {
     try {
       const response = await api.post(resource, data);
       return response.data;
@@ -59,7 +59,7 @@ export default function useApi() {
     list,
     get,
     getById,
-    create,
+    post,
     update,
     remove
   };
