@@ -49,12 +49,13 @@
 import { defineComponent, ref, onMounted } from "vue";
 import useAuthUser from "src/composables/UseAuthUser";
 import useNotify from "src/composables/UseNotify";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 export default defineComponent({
   name: "PageLogin",
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const { login, isLogged } = useAuthUser();
     const { notifyError, notifySuccess } = useNotify();
     const form = ref({
@@ -63,6 +64,10 @@ export default defineComponent({
     });
 
     onMounted(() => {
+      const isSessionExpired = route.query.sessionExpired;
+      if (isSessionExpired) {
+        notifyError("Sessão expirada, faça login novamente!");
+      }
       if (isLogged()) {
         router.push({ name: "home" });
       }
