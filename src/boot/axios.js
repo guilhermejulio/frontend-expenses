@@ -16,6 +16,20 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("authUser");
+      window.location.replace("/login?sessionExpired=true");
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default boot(({ app }) => {
   app.config.globalProperties.$axios = axios;
 
