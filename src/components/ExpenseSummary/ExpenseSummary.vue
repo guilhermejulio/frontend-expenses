@@ -36,7 +36,7 @@ export default defineComponent({
 
     const handleGetStatistics = async () => {
       try {
-        const { statistics } = await get("/expenses/statistics");
+        const { statistics } = await get("/expenses/stats");
         total.value = statistics?.total;
         expensesCount.value = statistics?.expensesCount;
       } catch (error) {
@@ -58,7 +58,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .summary-card {
-  background: var(--q-color-primary);
   padding: 1rem 2rem;
   border-radius: 0.25rem;
   color: var(--q-color-dark);
