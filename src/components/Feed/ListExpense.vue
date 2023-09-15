@@ -37,7 +37,7 @@
               dense
               round
               icon="delete"
-              @click="handleEdit(props.row)"
+              @click="handleRemoveExpense(props.row)"
             >
               <q-tooltip> Deletar </q-tooltip>
             </q-btn>
@@ -88,15 +88,18 @@ import { defineComponent, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import useApi from "src/composables/UseApi";
 import useNotify from "src/composables/UseNotify";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "ListExpense",
-  setup() {
+
+  setup(props, context) {
     const router = useRouter();
     const expensesList = ref([]);
     const loading = ref(true);
-    const { list } = useApi();
-    const { notifyError } = useNotify();
+    const { list, remove } = useApi();
+    const { notifyError, notifySuccess } = useNotify();
+    const $q = useQuasar();
 
     const handleListExpenses = async () => {
       try {
@@ -114,6 +117,28 @@ export default defineComponent({
       router.push({ name: "form-expense", params: { id: expense.id } });
     };
 
+    const self = this;
+
+    const handleRemoveExpense = async (expense) => {
+      try {
+        $q.dialog({
+          title: "Deletar",
+          message: `Deseja realmente deletar a despesa "${expense.description}"?`,
+          cancel: true,
+          persistent: true,
+          ok: "Deletar",
+          cancel: "Cancelar",
+        }).onOk(async () => {
+          await remove("/expenses", expense.id);
+          context.emit("summary-update");
+          notifySuccess("Despesa deletada com sucesso!");
+          handleListExpenses();
+        });
+      } catch (error) {
+        notifyError(error?.response?.data?.message);
+      }
+    };
+
     onMounted(() => {
       handleListExpenses();
     });
@@ -123,6 +148,7 @@ export default defineComponent({
       expensesList,
       loading,
       handleEdit,
+      handleRemoveExpense,
     };
   },
 });

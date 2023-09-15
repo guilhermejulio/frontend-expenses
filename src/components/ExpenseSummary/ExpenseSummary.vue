@@ -51,6 +51,7 @@ export default defineComponent({
     return {
       total,
       expensesCount,
+      handleGetStatistics,
     };
   },
 });

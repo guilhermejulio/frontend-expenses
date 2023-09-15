@@ -2,7 +2,9 @@
   <q-page padding>
     <div class="row justify-center">
       <div class="col-12 text-center">
-        <p class="text-h6">Form Expense</p>
+        <p class="text-h6">
+          {{ isUpdate ? "Atualizar" : "Cadastrar" }} despesa
+        </p>
       </div>
 
       <q-form
