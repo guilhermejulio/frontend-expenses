@@ -183,7 +183,6 @@ export default defineComponent({
         const { expense } = await getById("/expenses", id);
         form.value = expense;
         form.value.amount = expense.amount;
-        console.log(typeof expense.amount);
       } catch (error) {
         notifyError(error?.response?.data?.message);
       }
